@@ -1,7 +1,6 @@
 class Card:
     suits = ["C", "S", "H", "D"]  # Tréboles, picas, corazones, diamantes
-    numbers = ["A", "2", "3", "4", "5", "6",
-               "7", "8", "9", "10", "J", "Q", "K"]
+    numbers = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
 
     suit_glyphs = {
         "C": "♣",
@@ -37,16 +36,13 @@ class Card:
         return str(self)
 
     def is_descending(self, other):
-        """"""
-        return self.numbers.index(self.number) - self.numbers.index(other.number) > 0
+        return self.numbers.index(self.number) - self.numbers.index(other.number) < 0
 
     def is_right_next(self, other):
-        """"""
-        return self.numbers.index(self.number) - self.numbers.index(other.number) == 1
+        return self.numbers.index(self.number) - self.numbers.index(other.number) == -1
 
     def is_right_before(self, other):
-        """"""
-        return self.numbers.index(self.number) - self.numbers.index(other.number) == -1
+        return self.numbers.index(self.number) - self.numbers.index(other.number) == 1
 
     def color(self):
         if self.suit in ["H", "D"]:

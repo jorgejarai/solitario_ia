@@ -106,6 +106,10 @@ class SolitaireBoard:
         if len(self.tableau[from_col]) < size:
             raise ValueError(f"Invalid size {size}")
 
+        # Check if the origin column has any hidden cards
+        if any(card.hidden for card in self.tableau[from_col][-size:]):
+            raise ValueError(f"Cannot move hidden cards")
+
         # Check if the last card in the destination column is next in order to
         # the first card in the moving range and has a different color
         if len(self.tableau[to_col]) > 0:
@@ -116,32 +120,33 @@ class SolitaireBoard:
                 raise ValueError("Colors must alternate")
 
             # Check if the last card in the destination column and the
-            # first card in the moving range are in descending order
-            if not last_dest_card.is_descending(first_moving_card):
-                raise ValueError("Cards must be descending")
-
-            # Check if the last card in the destination column and the
             # first card in the moving range are next to each other
             # in number
-            if not last_dest_card.is_right_next(first_moving_card):
-                raise ValueError("Cards must be descending")
+            if not last_dest_card.is_right_before(first_moving_card):
+                raise ValueError("Cards must be descending b")
         else:
             # Check if the first card in the moving range is a king
             if self.tableau[from_col][-size].number != "K":
                 raise ValueError(f"Column must start with a K")
 
+        if size == 1:
+            return
+
         # Check if the cards in the moving range are alternating colors
-        for i in range(-1, -size, -1):
+        for i in range(-size, -1, 1):
             if (
                 self.tableau[from_col][i].color()
-                == self.tableau[from_col][i - 1].color()
+                == self.tableau[from_col][i + 1].color()
             ):
-                raise ValueError(f"Invalid slice")
+                raise ValueError(f"Cards must alternate colors")
 
         # Check if the cards in the moving range are ordered in descending order
-        for i in range(-1, -size, -1):
-            if self.tableau[from_col][i].is_right_before(self.tableau[from_col][i + 1]):
-                raise ValueError(f"Invalid slice")
+        for i in range(-size, -1, 1):
+            print(self.tableau[from_col][i], self.tableau[from_col][i + 1])
+            if not self.tableau[from_col][i].is_right_before(
+                self.tableau[from_col][i + 1]
+            ):
+                raise ValueError(f"Cards must be descending order")
 
     def __show_last_card(self, col):
         if len(self.tableau[col]) > 0:
@@ -156,7 +161,7 @@ class SolitaireBoard:
         # If foundation is not empty, the card must be next in order
         if len(self.foundations[card.suit]) > 0:
             last_card = self.foundations[card.suit][-1]
-            if last_card.is_right_next(card):
+            if not last_card.is_right_next(card):
                 raise ValueError(f"Invalid card {card}")
 
         return True
@@ -209,10 +214,11 @@ class SolitaireBoard:
         # If column is not empty, the card must be next in order
         if len(self.tableau[col]) > 0:
             last_card = self.tableau[col][-1]
+
             if last_card.color() == card.color():
                 raise ValueError(f"Invalid card {card} (colors must alternate)")
 
-            if last_card.is_right_before(card):
+            if not last_card.is_right_before(card):
                 raise ValueError(f"Invalid card {card} (not in descending order)")
 
         self.tableau[col].append(self.waste.pop())
@@ -237,14 +243,13 @@ class SolitaireBoard:
         if len(self.tableau[col]) == 0:
             if card.number != "K":
                 raise ValueError(f"Invalid card {card}")
-
-        # If column is not empty, the card must be next in order
-        if len(self.tableau[col]) > 0:
+        else:
+            # If column is not empty, the card must be next in order
             last_card = self.tableau[col][-1]
             if last_card.color() == card.color():
                 raise ValueError(f"Invalid card {card} (colors must alternate)")
 
-            if last_card.is_right_before(card):
+            if not last_card.is_right_before(card):
                 raise ValueError(f"Invalid card {card} (not in descending order)")
 
         self.tableau[col].append(self.foundations[suit].pop())
