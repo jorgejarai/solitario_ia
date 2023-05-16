@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from solitaire_board import SolitaireBoard
+from legal_moves import LegalMoveChecker
 
 
 def main():
@@ -8,6 +9,15 @@ def main():
 
     while True:
         sol.print_game()
+
+        legal_checker = LegalMoveChecker(sol)
+        print(f"Can draw from stock? {legal_checker.check_d_moves()}")
+        print(f"Can move from stock to foundation? {legal_checker.check_s_moves()}")
+        print(f"Legal f moves: {legal_checker.check_f_moves()}")
+        print(f"Legal w moves: {legal_checker.check_w_moves()}")
+        print(f"Legal m moves: {legal_checker.check_m_moves()}")
+        print(f"Legal b moves: {legal_checker.check_b_moves()}")
+
         print("Enter a command: ", end="")
         cmd = input().split(" ")
 
