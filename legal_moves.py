@@ -47,6 +47,18 @@ class LegalMoveChecker:
         ret = []
 
         for i in range(7):
+            # If the column is empty, skip it
+            if len(self.board.tableau[i]) == 0:
+                continue
+
+            # If the columns starts with a not hidden K, skip it
+            # (moving a K if it's already visible is redundant)
+            if (
+                not self.board.tableau[i][0].hidden
+                and self.board.tableau[i][0].number == "K"
+            ):
+                continue
+
             for j in range(7):
                 col_len = len(self.board.tableau[i])
 
