@@ -252,3 +252,10 @@ class SolitaireBoard:
                 raise ValueError(f"Invalid card {card} (not in descending order)")
 
         self.tableau[col].append(self.foundations[suit].pop())
+
+    def check_if_won(self):
+        for suit in self.foundations:
+            if len(self.foundations[suit]) != 13:
+                return False
+
+        return True

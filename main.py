@@ -10,6 +10,10 @@ def main():
     while True:
         sol.print_game()
 
+        if sol.check_if_won():
+            print("You won!")
+            break
+
         legal_checker = LegalMoveChecker(sol)
         print(f"Can draw from stock? {legal_checker.check_d_moves()}")
         print(f"Can move from stock to foundation? {legal_checker.check_s_moves()}")
