@@ -142,7 +142,6 @@ class SolitaireBoard:
 
         # Check if the cards in the moving range are ordered in descending order
         for i in range(-size, -1, 1):
-            print(self.tableau[from_col][i], self.tableau[from_col][i + 1])
             if not self.tableau[from_col][i].is_right_before(
                 self.tableau[from_col][i + 1]
             ):
