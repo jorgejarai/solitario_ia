@@ -3,9 +3,13 @@
 from solitaire_board import SolitaireBoard
 from legal_moves import LegalMoveChecker
 
+from copy import deepcopy
+
 
 def main():
     sol = SolitaireBoard.generate_random()
+
+    history = []
 
     while True:
         sol.print_game()
@@ -32,21 +36,35 @@ def main():
                 from_pile = int(cmd[1])
                 to_pile = int(cmd[2])
                 slice_length = int(cmd[3]) if len(cmd) > 3 else 1
+
+                history.append(deepcopy(sol))
                 sol.move_within_tableau(from_pile, to_pile, slice_length)
             elif cmd[0] == "d":
+                history.append(deepcopy(sol))
                 sol.draw_from_stock()
             elif cmd[0] == "f":
                 pile = int(cmd[1])
+                history.append(deepcopy(sol))
                 sol.move_to_foundation(pile)
             elif cmd[0] == "w":
                 pile = int(cmd[1])
+                history.append(deepcopy(sol))
                 sol.move_from_waste(pile)
             elif cmd[0] == "s":
+                history.append(deepcopy(sol))
                 sol.move_from_waste_to_foundation()
             elif cmd[0] == "b":
                 suit = cmd[1]
                 col = int(cmd[2])
+
+                history.append(deepcopy(sol))
                 sol.move_from_foundation_to_tableau(suit, col)
+            elif cmd[0] == "u":
+                if len(history) == 0:
+                    raise Exception("Can't undo any further")
+
+                sol = history.pop()
+
         except Exception as e:
             print(e)
 

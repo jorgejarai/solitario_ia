@@ -16,6 +16,7 @@ En cada jugada, se imprime por pantalla el estado actual del tablero, y se pide 
 - `w <a>`: mueve la última carta de la columna `a` al descarte
 - `s`: mueve la última carta del descarte a su casilla correspondiente en la base
 - `b <a> <b>`: mueve la última carta de la base `a` a la columna `b`
+- `u`: deshace la última jugada
 - `q`: sale del juego
 
 Si alguno de los comandos o las jugadas que generan no son válidas, se imprime un mensaje de error y se vuelve a pedir una jugada.

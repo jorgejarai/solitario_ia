@@ -3,7 +3,6 @@ from card import Card
 
 # TODO: Make class immutable (create a new instance every time a move is made)
 # TODO: Check if there are no more moves available
-# TODO: Check if the game is won
 # TODO: Hints
 
 
