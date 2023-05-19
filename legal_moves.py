@@ -6,6 +6,40 @@ class LegalMoveChecker:
     def __init__(self, board: SolitaireBoard):
         self.board = board
 
+    def get_legal_moves(self):
+        f_moves = self.check_f_moves()
+        w_moves = self.check_w_moves()
+        d_moves = self.check_d_moves()
+        s_moves = self.check_s_moves()
+        m_moves = self.check_m_moves()
+        b_moves = self.check_b_moves()
+
+        ret = []
+
+        if len(f_moves) > 0:
+            for i in f_moves:
+                ret.append(("f", i))
+
+        if len(w_moves) > 0:
+            for i in w_moves:
+                ret.append(("w", i))
+
+        if d_moves:
+            ret.append(("d",))
+
+        if s_moves:
+            ret.append(("s",))
+
+        if len(m_moves) > 0:
+            for i in m_moves:
+                ret.append(("m", *i))
+
+        if len(b_moves) > 0:
+            for i in b_moves:
+                ret.append(("b", *i))
+
+        return ret
+
     def check_f_moves(self):
         ret = []
 
