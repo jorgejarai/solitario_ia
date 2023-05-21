@@ -1,39 +1,30 @@
 #!/usr/bin/env python3
 
+import sys
 import networkx as nx
 import os
-# from networkx.drawing.nx_pydot import to_pydot
 from legal_moves import LegalMoveChecker
 from solitaire_board import SolitaireBoard
 from copy import deepcopy
 from random import shuffle
 import json
-import time
+import datetime
 
 
-def export_board(board: SolitaireBoard):
-    """Exports a given SolitaireBoard instance to a JSON file."""
+def export_board(board: SolitaireBoard, moves: list[tuple]):
+    """Exports a given SolitaireBoard instance to a JSON file, including the
+    moves used to arrive to a solution from this board."""
 
     if not os.path.exists("boards"):
         os.makedirs("boards")
 
-    timestamp = round(time.time())
+    timestamp = datetime.datetime.now().isoformat(timespec="seconds")
+
+    exported_board = board.export()
+    exported_board["moves"] = moves
 
     with open(f"boards/board-{timestamp}.json", "w") as f:
-        json.dump(
-            {
-                "stock": [i.debug_str().strip() for i in board.stock],
-                "waste": [i.debug_str().strip() for i in board.waste],
-                "foundations": {
-                    "S": [i.debug_str().strip() for i in board.foundations["S"]],
-                    "C": [i.debug_str().strip() for i in board.foundations["C"]],
-                    "H": [i.debug_str().strip() for i in board.foundations["H"]],
-                    "D": [i.debug_str().strip() for i in board.foundations["D"]],
-                },
-                "tableau": [[i.debug_str().strip() for i in j] for j in board.tableau],
-            },
-            f,
-        )
+        json.dump(exported_board, f)
 
 
 def dfs_traversal(start_node: SolitaireBoard, max_nodes: int, max_depth: int = 150):
@@ -67,7 +58,24 @@ def dfs_traversal(start_node: SolitaireBoard, max_nodes: int, max_depth: int = 1
                 print("Number of edges:", graph.number_of_edges())
                 print("Depth:", len(stack))
 
-                export_board(start_node)
+                # Get the moves that led to the winning board
+                # shortest path from start_node to current_node
+                winning_moves = []
+
+                shortest_path = nx.shortest_path(graph, start_node, current_node)
+                edges = [
+                    (shortest_path[i], shortest_path[i + 1])
+                    for i in range(len(shortest_path) - 1)
+                ]
+
+                for from_node, to_node in edges:
+                    edge = graph.get_edge_data(from_node, to_node)
+                    print(edge)
+
+                    winning_moves.append(edge["move"])
+
+                print("Moves:", len(winning_moves))
+                export_board(start_node, winning_moves)
                 return graph
 
             legal_checker = LegalMoveChecker(current_node)
@@ -77,19 +85,7 @@ def dfs_traversal(start_node: SolitaireBoard, max_nodes: int, max_depth: int = 1
             # Add all legal moves to the stack
             for move in legal_moves:
                 new_node = deepcopy(current_node)
-
-                if move[0] == "m":
-                    new_node.move_within_tableau(move[1], move[2], move[3])
-                elif move[0] == "d":
-                    new_node.draw_from_stock()
-                elif move[0] == "f":
-                    new_node.move_to_foundation(move[1])
-                elif move[0] == "w":
-                    new_node.move_from_waste(move[1])
-                elif move[0] == "s":
-                    new_node.move_from_waste_to_foundation()
-                elif move[0] == "b":
-                    new_node.move_from_foundation_to_tableau(move[1], move[2])
+                new_node.play_move(move)
 
                 graph.add_node(new_node)
                 graph.add_edge(current_node, new_node, move=move)
@@ -103,13 +99,19 @@ def dfs_traversal(start_node: SolitaireBoard, max_nodes: int, max_depth: int = 1
 
 def main():
     max_nodes = 1_000_000
-    initial_board = SolitaireBoard.generate_random()
+
+    initial_board = None
+    if len(sys.argv) > 1:
+        with open(sys.argv[1], "r") as f:
+            board_json = f.read()
+            board_json = json.loads(board_json)
+
+        initial_board = SolitaireBoard.generate_from_json(board_json)
+    else:
+        initial_board = SolitaireBoard.generate_random()
 
     dfs_traversal(initial_board, max_nodes)
 
-    # # Print the result graph in DOT format
-    # dot_graph = to_pydot(graph)
-    # print(dot_graph.to_string())
 
 if __name__ == "__main__":
     main()
