@@ -17,6 +17,9 @@ class Card:
     }
 
     def __init__(self, number, suit, hidden=False):
+        """Creates a new card. `number` is the number of the card, and `suit` is
+        the suit of the card. `hidden` is a boolean that indicates whether the
+        card should be hidden or not."""
         if number not in self.numbers:
             raise ValueError(f"Invalid number {number}")
         if suit not in self.suits:
@@ -27,6 +30,8 @@ class Card:
         self.hidden = hidden
 
     def __str__(self) -> str:
+        """Returns a string representation of the card that can be printed to
+        a terminal."""
         if self.hidden:
             return "XXX"
 
@@ -35,17 +40,45 @@ class Card:
     def __repr__(self) -> str:
         return str(self)
 
-    def is_descending(self, other):
-        return self.numbers.index(self.number) - self.numbers.index(other.number) < 0
-
-    def is_right_next(self, other):
+    def is_right_before(self, other):
+        """Returns `True` if the card is right before the other card in
+        the traditional order (e. g. 2 of hearts is right before 3 of hearts).
+        The suit is ignored."""
         return self.numbers.index(self.number) - self.numbers.index(other.number) == -1
 
-    def is_right_before(self, other):
+    def is_right_next(self, other):
+        """Returns `True` if the card is right next to the other card in the
+        traditional order (e. g. king of hearts is right next to queen of
+        hearts). The suit is ignored."""
         return self.numbers.index(self.number) - self.numbers.index(other.number) == 1
 
     def color(self):
+        """Returns the color of the card, either "red" or "black"."""
         if self.suit in ["H", "D"]:
             return "red"
         else:
             return "black"
+
+    def debug_str(self):
+        """Returns a string representation of the card that can be used to
+        reconstruct it."""
+        if self.hidden:
+            return f"{self.number}{self.suit}X"
+        else:
+            return f"{self.number}{self.suit}"
+
+    @staticmethod
+    def from_debug_str(debug_str: str):
+        """Reconstructs a card from a debug string."""
+        if len(debug_str) < 2 or len(debug_str) > 4:
+            raise ValueError(f"Invalid debug string {debug_str}")
+
+        if len(debug_str) == 2:
+            return Card(debug_str[0], debug_str[1], False)
+        elif len(debug_str) == 3:
+            if debug_str[-1] == "X":
+                return Card(debug_str[0], debug_str[1], True)
+
+            return Card(debug_str[0:2], debug_str[2], False)
+        elif len(debug_str) == 4:
+            return Card(debug_str[0:2], debug_str[2], True)
