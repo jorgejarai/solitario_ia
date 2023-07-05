@@ -29,6 +29,9 @@ def main():
 
     history = []
 
+    legal_checker = LegalMoveChecker(sol)
+    print(len(legal_checker.encode_legal_moves()))
+
     while True:
         sol.print_game()
 

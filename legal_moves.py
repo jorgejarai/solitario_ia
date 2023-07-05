@@ -3,8 +3,46 @@ from copy import deepcopy
 
 
 class LegalMoveChecker:
+    __move_dict = []
+
+    def __populate_move_dict(self):
+        self.__move_dict = []
+
+        # Move within tableau
+        for from_pile in range(7):
+            for to_pile in range(7):
+                if from_pile == to_pile:
+                    continue
+
+                for slice_length in range(1, 21):
+                    self.__move_dict.append(("m", from_pile, to_pile, slice_length))
+
+        # Draw from stock
+        self.__move_dict.append(("d",))
+
+        # Move to foundation
+        for pile in range(7):
+            self.__move_dict.append(("f", pile))
+
+        # Move from waste
+        for pile in range(7):
+            self.__move_dict.append(("w", pile))
+
+        # Move from waste to foundation
+        self.__move_dict.append(("s",))
+
+        # Move from foundation to tableau
+        for suit in ["S", "C", "H", "D"]:
+            for col in range(7):
+                self.__move_dict.append(("b", suit, col))
+
+        # Undo move
+        self.__move_dict.append(("u",))
+
     def __init__(self, board: SolitaireBoard):
         self.board = board
+
+        self.__populate_move_dict()
 
     def get_legal_moves(self):
         f_moves = self.check_f_moves()
@@ -119,3 +157,18 @@ class LegalMoveChecker:
                     continue
 
         return ret
+
+    def encode_legal_moves(self):
+        legal_moves = self.get_legal_moves()
+
+        ret = []
+        for move in self.__move_dict:
+            if move in legal_moves:
+                ret.append(1)
+            else:
+                ret.append(0)
+
+        return ret
+
+    def decode_move(self, move):
+        return self.__move_dict[move]

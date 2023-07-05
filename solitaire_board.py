@@ -1,6 +1,7 @@
 from copy import deepcopy
 from random import shuffle
 from card import Card
+import numpy as np
 
 # TODO: Make class immutable (create a new instance every time a move is made)
 # TODO: Check if there are no more moves available
@@ -344,6 +345,54 @@ class SolitaireBoard:
 
         return prev_sol
 
+    def play_move_reward(self, move: tuple | list):
+        """Plays a move on the board and returns its associated reward. The
+        move is a tuple or list, where the first element is the command, and the
+        rest are its arguments. The syntax is the same as the one used in the
+        game."""
+
+        # Si la jugada no está dentro de los movimientos legales,
+        # se penaliza con -100000
+
+        ret = 0
+
+        try:
+            command = move[0]
+            if command == "m":
+                from_pile = int(move[1])
+                to_pile = int(move[2])
+                slice_length = int(move[3]) if len(move) > 3 else 1
+
+                self.move_within_tableau(from_pile, to_pile, slice_length)
+
+                ret = -10
+            elif command == "d":
+                self.draw_from_stock()
+                ret = -10
+            elif command == "f":
+                pile = int(move[1])
+                self.move_to_foundation(pile)
+                ret = 10
+            elif command == "w":
+                pile = int(move[1])
+                self.move_from_waste(pile)
+                ret = -10
+            elif command == "s":
+                self.move_from_waste_to_foundation()
+                ret = 10
+            elif command == "b":
+                suit = move[1]
+                col = int(move[2])
+                self.move_from_foundation_to_tableau(suit, col)
+                ret = -15
+        except ValueError:
+            ret = -100
+
+        if self.check_if_won():
+            ret = 100000
+
+        return ret
+
     def export(self):
         """Exports the state of the game to a dictionary."""
 
@@ -362,3 +411,45 @@ class SolitaireBoard:
         ]
 
         return ret
+
+    def encode_board(self):
+        """Encodes the state of the board as a one-hot vector, to be used as
+        input to the neural network."""
+
+        neurons = []
+
+        # Encode stock
+        for i in range(24):
+            if i < len(self.stock):
+                card = self.stock[i]
+                neurons.append(card.encode())
+            else:
+                neurons.append([0] * 17)
+
+        # Encode waste
+        for i in range(24):
+            if i < len(self.waste):
+                card = self.waste[i]
+                neurons.append(card.encode())
+            else:
+                neurons.append([0] * 17)
+
+        # Encode foundations
+        for suit in ["S", "C", "H", "D"]:
+            for i in range(13):
+                if i < len(self.foundations[suit]):
+                    card = self.foundations[suit][i]
+                    neurons.append(card.encode())
+                else:
+                    neurons.append([0] * 17)
+
+        # Encode tableau
+        for col in self.tableau:
+            for i in range(20):
+                if i < len(col):
+                    card = col[i]
+                    neurons.append(card.encode())
+                else:
+                    neurons.append([0] * 17)
+
+        return np.array(neurons).flatten()

@@ -82,3 +82,14 @@ class Card:
             return Card(debug_str[0:2], debug_str[2], False)
         elif len(debug_str) == 4:
             return Card(debug_str[0:2], debug_str[2], True)
+
+    def encode(self):
+        """Returns a one-hot encoding of the card. The encoding is a list of
+        17 elements, where the first 13 elements represent the number of the
+        card, and the next 4 elements represent the suit of the card."""
+
+        ret = [0] * 17
+        ret[self.numbers.index(self.number)] = 1
+        ret[13 + self.suits.index(self.suit)] = 1
+
+        return ret
