@@ -47,6 +47,8 @@ def dfs_traversal(start_node: SolitaireBoard, max_nodes: int, max_depth: int = 1
 
         if current_node not in visited:
             if graph.number_of_nodes() % 100 == 0:
+                print("\x1b[2J\x1b[H")
+                print("Number of nodes:", graph.number_of_nodes())
                 current_node.print_game()
 
             visited.add(current_node)
@@ -70,17 +72,22 @@ def dfs_traversal(start_node: SolitaireBoard, max_nodes: int, max_depth: int = 1
 
                 for from_node, to_node in edges:
                     edge = graph.get_edge_data(from_node, to_node)
-                    print(edge)
-
                     winning_moves.append(edge["move"])
 
                 print("Moves:", len(winning_moves))
                 export_board(start_node, winning_moves)
+
                 return graph
 
             legal_checker = LegalMoveChecker(current_node)
             legal_moves = legal_checker.get_legal_moves()
             shuffle(legal_moves)
+
+            # If the board is ready to be won (all cards are in the tableau,
+            # they are all face up and in order), ignore moves that don't move
+            # cards to the foundation
+            if current_node.check_if_ready_to_win():
+                legal_moves = [move for move in legal_moves if move[0] == "f"]
 
             # Add all legal moves to the stack
             for move in legal_moves:
