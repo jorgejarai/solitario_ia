@@ -143,7 +143,7 @@ class SolitaireBoard:
             # Check if the last card in the destination column and the
             # first card in the moving range are next to each other
             # in number
-            if not last_dest_card.is_right_before(first_moving_card):
+            if not last_dest_card.is_right_next(first_moving_card):
                 raise ValueError("Cards must be descending")
         else:
             # Check if the first card in the moving range is a king
@@ -163,7 +163,7 @@ class SolitaireBoard:
 
         # Check if the cards in the moving range are ordered in descending order
         for i in range(-size, -1, 1):
-            if not self.tableau[from_col][i].is_right_before(
+            if not self.tableau[from_col][i].is_right_next(
                 self.tableau[from_col][i + 1]
             ):
                 raise ValueError(f"Cards must be descending")
@@ -185,7 +185,7 @@ class SolitaireBoard:
         # the new card must be 6)
         if len(self.foundations[card.suit]) > 0:
             last_card = self.foundations[card.suit][-1]
-            if not last_card.is_right_before(card):
+            if not last_card.is_right_next(card):
                 raise ValueError(f"Invalid card {card}")
 
         return True
@@ -247,7 +247,7 @@ class SolitaireBoard:
             if last_card.color() == card.color():
                 raise ValueError(f"Invalid card {card} (colors must alternate)")
 
-            if not last_card.is_right_before(card):
+            if not last_card.is_right_next(card):
                 raise ValueError(f"Invalid card {card} (not in descending order)")
 
         self.tableau[col].append(self.waste.pop())
@@ -281,7 +281,7 @@ class SolitaireBoard:
             if last_card.color() == card.color():
                 raise ValueError(f"Invalid card {card} (colors must alternate)")
 
-            if not last_card.is_right_before(card):
+            if not last_card.is_right_next(card):
                 raise ValueError(f"Invalid card {card} (not in descending order)")
 
         self.tableau[col].append(self.foundations[suit].pop())
