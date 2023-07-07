@@ -213,6 +213,8 @@ try:
 
             if done:
                 won_games += 1
+                print("Won game")
+                env.print_game()
                 break
 
             # If unity indicates that episode is done,
@@ -235,7 +237,7 @@ try:
         epsilon = max(epsilon_min, epsilon_decay * epsilon)
 
         # (Over-) Print current average score
-        print("{},{:.2f},{:.2f},{:.2f}".format(i_episode, average_score, won_games / i_episode))
+        print("{},{:.2f},{:.2f}".format(i_episode, average_score, won_games / i_episode))
 
         # Check to see if the task is solved (i.e,. avearge_score > solved_score).
         # If yes, save the network weights and scores and end training.

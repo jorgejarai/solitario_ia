@@ -1,0 +1,25 @@
+stock (24)
+waste (24)
+foundation (4*13)
+tableau (7*20)
+
+24 + 24 + 4*13 + 7*20 = 240 cartas
+240 cartas * 17 neuronas/carta = 4080 neuronas
+
+ 0   407 408 815 816            1699 1700                         4079 4080             5104
+| stock | waste |    foundation     |                tableau          |    legal moves      |
+
+stock, waste
+
+0                                    407
+| (top) | ... | (bottom) | 0 0 0 0 0 0 0 0 0 0 0 |
+
+# foundation
+
+#  C  D  P  T
+# 13 13 13 13 
+
+output
+
+0                               1025
+| (m 0 1 1) (m 0 1 2) ... (m 0 2 1) ... (d 0) ... (d 1) ... (d)
