@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+mo#!/usr/bin/env python3
 
 """
 Test DQN Model for Unity ML-Agents Environments using PyTorch
@@ -145,7 +145,11 @@ for i_episode in range(1, num_episodes + 1):
         print("Score: ", score)
 
         # determine epsilon-greedy action from current sate
-        action = agent.act(state)
+        try:
+            action = agent.act(state, 0)
+        except ValueError:
+            print("Unwinnable game")
+            break
 
         print("Action: ", legal_checker.decode_move(action))
 

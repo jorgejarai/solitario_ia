@@ -184,7 +184,11 @@ try:
             # env.print_game()
 
             # determine epsilon-greedy action from current state
-            action = agent.act(state, epsilon, legal_checker)
+            try:
+                action = agent.act(state, epsilon, legal_checker)
+            except ValueError:
+                print("Unwinnable game")
+                break
 
             # if i % 200 == 0:
             #     env.print_game()
