@@ -180,8 +180,8 @@ try:
         # Otherwise repeat until done == true
         i = 0
         while True:
-            print((i, score, legal_checker.get_legal_moves()))
-            env.print_game()
+            # print((i, score, legal_checker.get_legal_moves()))
+            # env.print_game()
 
             # determine epsilon-greedy action from current state
             action = agent.act(state, epsilon, legal_checker)
@@ -235,7 +235,7 @@ try:
         epsilon = max(epsilon_min, epsilon_decay * epsilon)
 
         # (Over-) Print current average score
-        print("{},{:.2f},{:.2f},{:.2f},{:.2f}".format(i_episode, average_score, won_games / i_episode))
+        print("{},{:.2f},{:.2f},{:.2f}".format(i_episode, average_score, won_games / i_episode))
 
         # Check to see if the task is solved (i.e,. avearge_score > solved_score).
         # If yes, save the network weights and scores and end training.
