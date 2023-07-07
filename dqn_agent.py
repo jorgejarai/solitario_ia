@@ -113,7 +113,7 @@ class Agent:
     ########################################################
     # ACT() method
     #
-    def act(self, state, eps=0.0):
+    def act(self, state, eps=0., legal_checker=None):
         """Returns actions for given state as per current policy.
 
         Params
@@ -127,11 +127,31 @@ class Agent:
             action_values = self.network(state)
         self.network.train()
 
+        action_values = action_values.cpu().data.numpy()
+
+        if legal_checker is not None:
+            # Get legal actions
+            legal_actions = legal_checker.encode_legal_moves()
+
+            # Convert to numpy array
+            legal_actions = np.array(legal_actions)
+
+            # Set illegal actions to -inf
+            action_values[0][legal_actions == 0] = -np.inf
+
         # Epsilon-greedy action selection
         if random.random() > eps:
-            return np.argmax(action_values.cpu().data.numpy())
+            # Return the action with the highest Q-value
+            return np.argmax(action_values)
         else:
-            return random.choice(np.arange(self.action_size))
+            # Choose randomly between the actions in action_values,
+            # that have a value different from -inf
+
+            # Get the indices of the actions that are not -inf
+            indices = np.where(action_values != -np.inf)[1]
+
+            # Return a random action from the indices
+            return random.choice(indices)
 
     ########################################################
     # LEARN() method

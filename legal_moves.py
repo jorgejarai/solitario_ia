@@ -31,13 +31,13 @@ class LegalMoveChecker:
         # Move from waste to foundation
         self.__move_dict.append(("s",))
 
-        # Move from foundation to tableau
-        for suit in ["S", "C", "H", "D"]:
-            for col in range(7):
-                self.__move_dict.append(("b", suit, col))
+        # # Move from foundation to tableau
+        # for suit in ["S", "C", "H", "D"]:
+        #     for col in range(7):
+        #         self.__move_dict.append(("b", suit, col))
 
         # Undo move
-        self.__move_dict.append(("u",))
+        # self.__move_dict.append(("u",))
 
     def __init__(self, board: SolitaireBoard):
         self.board = board
@@ -50,7 +50,7 @@ class LegalMoveChecker:
         d_moves = self.check_d_moves()
         s_moves = self.check_s_moves()
         m_moves = self.check_m_moves()
-        b_moves = self.check_b_moves()
+        # b_moves = self.check_b_moves()
 
         ret = []
 
@@ -72,9 +72,9 @@ class LegalMoveChecker:
             for i in m_moves:
                 ret.append(("m", *i))
 
-        if len(b_moves) > 0:
-            for i in b_moves:
-                ret.append(("b", *i))
+        # if len(b_moves) > 0:
+        #     for i in b_moves:
+        #         ret.append(("b", *i))
 
         return ret
 

@@ -21,7 +21,16 @@ class QNetwork(nn.Module):
     Initialize parameters and build model.
     """
 
-    def __init__(self, state_size, action_size, seed, fc1_units=128, fc2_units=128):
+    def __init__(
+        self,
+        state_size,
+        action_size,
+        seed,
+        fc1_units=128,
+        fc2_units=128,
+        fc3_units=128,
+        fc4_units=128,
+    ):
         """
         Params
         ======
@@ -35,7 +44,9 @@ class QNetwork(nn.Module):
         self.seed = torch.manual_seed(seed)
         self.fc1 = nn.Linear(state_size, fc1_units)
         self.fc2 = nn.Linear(fc1_units, fc2_units)
-        self.fc3 = nn.Linear(fc2_units, action_size)
+        self.fc3 = nn.Linear(fc2_units, fc3_units)
+        self.fc4 = nn.Linear(fc3_units, fc4_units)
+        self.fc5 = nn.Linear(fc4_units, action_size)
 
     """
     ###################################################
@@ -45,4 +56,7 @@ class QNetwork(nn.Module):
     def forward(self, state):
         x = F.relu(self.fc1(state))
         x = F.relu(self.fc2(x))
-        return self.fc3(x)
+        x = F.relu(self.fc3(x))
+        x = F.relu(self.fc4(x))
+
+        return self.fc5(x)

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 DQN for Unity ML-Agents Environments using PyTorch
 Includes examples of the following DQN training algorithms:
@@ -46,7 +48,7 @@ epsilon_min = 0.05
 epsilon_decay = 0.99
 scores = []
 scores_average_window = 100
-solved_score = 0
+solved_score = 100000
 
 
 """
@@ -97,11 +99,11 @@ STEP 4: Determine the size of the Action and State Spaces
 
 # Set the number of actions or action size
 # action_size = brain.vector_action_space_size
-action_size = 885
+action_size = 856
 
 # Set the size of state observations or state size
 # state_size = brain.vector_observation_space_size
-state_size = 4965
+state_size = 4936
 
 
 """
@@ -176,8 +178,11 @@ try:
         # Otherwise repeat until done == true
         i = 0
         while True:
+            print((i, score, legal_checker.get_legal_moves()))
+            env.print_game()
+
             # determine epsilon-greedy action from current state
-            action = agent.act(state, epsilon)
+            action = agent.act(state, epsilon, legal_checker)
 
             # if i % 200 == 0:
             #     env.print_game()
@@ -185,7 +190,9 @@ try:
 
             # send the action to the environment and receive resultant environment information
             # env_info = env.step(action)
-            reward = env.play_move_reward(legal_checker.decode_move(action))
+            (reward, illegal_move) = env.play_move_reward(
+                legal_checker.decode_move(action)
+            )
 
             next_state = np.hstack(
                 (env.encode_board(), legal_checker.encode_legal_moves())
@@ -204,7 +211,7 @@ try:
 
             # If unity indicates that episode is done,
             # then exit episode loop, to begin new episode
-            if done or i > 1000:
+            if done or i > 500:
                 break
 
             i += 1
@@ -222,10 +229,7 @@ try:
         epsilon = max(epsilon_min, epsilon_decay * epsilon)
 
         # (Over-) Print current average score
-        print("Episode {}\tAverage Score: {:.2f}".format(i_episode, average_score))
-
-        if i_episode % scores_average_window == 0:
-            print("Episode {}\tAverage Score: {:.2f}".format(i_episode, average_score))
+        print("{},{:.2f},{:.2f},{:.2f}".format(i_episode, average_score))
 
         # Check to see if the task is solved (i.e,. avearge_score > solved_score).
         # If yes, save the network weights and scores and end training.

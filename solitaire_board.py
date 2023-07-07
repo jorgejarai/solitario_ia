@@ -186,7 +186,7 @@ class SolitaireBoard:
         # the new card must be 6)
         if len(self.foundations[card.suit]) > 0:
             last_card = self.foundations[card.suit][-1]
-            if not last_card.is_right_next(card):
+            if not last_card.is_right_before(card):
                 raise ValueError(f"Invalid card {card}")
 
         return True
@@ -345,19 +345,24 @@ class SolitaireBoard:
 
         return prev_sol
 
+    def get_empty_columns(self):
+        """Returns a list of the empty columns in the tableau."""
+        return [i for i in range(7) if len(self.tableau[i]) == 0]
+
     def play_move_reward(self, move: tuple | list):
         """Plays a move on the board and returns its associated reward. The
         move is a tuple or list, where the first element is the command, and the
         rest are its arguments. The syntax is the same as the one used in the
         game."""
 
-        # Si la jugada no está dentro de los movimientos legales,
-        # se penaliza con -100000
-
         ret = 0
 
+        empty_columns_before = self.get_empty_columns()
+
+        illegal_move = False
+
+        command = move[0]
         try:
-            command = move[0]
             if command == "m":
                 from_pile = int(move[1])
                 to_pile = int(move[2])
@@ -365,33 +370,48 @@ class SolitaireBoard:
 
                 self.move_within_tableau(from_pile, to_pile, slice_length)
 
-                ret = -10
+                ret = -5
             elif command == "d":
                 self.draw_from_stock()
-                ret = -10
+                ret = -40
             elif command == "f":
                 pile = int(move[1])
+                suit = self.tableau[pile][-1].suit
                 self.move_to_foundation(pile)
-                ret = 10
+                ret = 10 * 2 ** len(self.foundations[suit])
             elif command == "w":
                 pile = int(move[1])
                 self.move_from_waste(pile)
-                ret = -10
+                ret = -5
             elif command == "s":
+                suit = self.waste[-1].suit
                 self.move_from_waste_to_foundation()
-                ret = 10
+                ret = 10 * 2 ** len(self.foundations[suit])
             elif command == "b":
                 suit = move[1]
                 col = int(move[2])
                 self.move_from_foundation_to_tableau(suit, col)
-                ret = -15
+                ret = -10 * 4 ** len(self.foundations[suit])
         except ValueError:
-            ret = -100
+            assert 1 != 2
+            ret = -1000  # -100 | 20
+            illegal_move = True
+
+        empty_columns_after = self.get_empty_columns()
+
+        # Si se ha vaciado una columna, se premia con 10 por cada columna
+        # vaciada
+        if len(empty_columns_after) > len(empty_columns_before):
+            ret += 10 * (len(empty_columns_after) - len(empty_columns_before))
+
+        # Si se ha vaciado el mazo, se castiga con -20
+        if command == "d" and len(self.stock) == 0:
+            ret -= 20
 
         if self.check_if_won():
             ret = 100000
 
-        return ret
+        return (ret, illegal_move)
 
     def export(self):
         """Exports the state of the game to a dictionary."""
