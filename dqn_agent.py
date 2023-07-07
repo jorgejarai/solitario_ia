@@ -83,8 +83,8 @@ class Agent:
         # (b) A target network, with weights updated to equal the network at a slower (target_tau) rate.
         # The slower modulation of the target network weights operates to stablize learning.
         """
-        self.network = QNetwork(state_size, action_size, seed, 6000, 4000).to(device)
-        self.target_network = QNetwork(state_size, action_size, seed, 6000, 4000).to(
+        self.network = QNetwork(state_size, action_size, seed, 3916, 2896, 1233, 1876).to(device)
+        self.target_network = QNetwork(state_size, action_size, seed, 3916, 2896, 1233, 1876).to(
             device
         )
         self.optimizer = optim.Adam(self.network.parameters(), lr=self.learn_rate)
@@ -138,6 +138,10 @@ class Agent:
 
             # Set illegal actions to -inf
             action_values[0][legal_actions == 0] = -np.inf
+
+        # If there are no legal actions, throw an error
+        if np.all(action_values == -np.inf):
+            raise ValueError("No legal actions available")
 
         # Epsilon-greedy action selection
         if random.random() > eps:
