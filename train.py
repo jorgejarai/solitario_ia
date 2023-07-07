@@ -156,6 +156,8 @@ Below we also exit the training process early if the environment is solved.
 That is, if the average score for the previous 100 episodes is greater than solved_score.
 """
 
+won_games = 0
+
 try:
     # loop from num_episodes
     for i_episode in range(1, num_episodes + 1):
@@ -209,9 +211,13 @@ try:
             # Update episode score
             score += reward
 
+            if done:
+                won_games += 1
+                break
+
             # If unity indicates that episode is done,
             # then exit episode loop, to begin new episode
-            if done or i > 500:
+            if i > 500:
                 break
 
             i += 1
@@ -229,11 +235,11 @@ try:
         epsilon = max(epsilon_min, epsilon_decay * epsilon)
 
         # (Over-) Print current average score
-        print("{},{:.2f},{:.2f},{:.2f}".format(i_episode, average_score))
+        print("{},{:.2f},{:.2f},{:.2f},{:.2f}".format(i_episode, average_score, won_games / i_episode))
 
         # Check to see if the task is solved (i.e,. avearge_score > solved_score).
         # If yes, save the network weights and scores and end training.
-        if average_score >= solved_score:
+        if won_games / i_episode > 0.75:
             print(
                 "\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}".format(
                     i_episode, average_score
