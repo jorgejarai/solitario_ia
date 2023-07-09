@@ -83,10 +83,12 @@ class Agent:
         # (b) A target network, with weights updated to equal the network at a slower (target_tau) rate.
         # The slower modulation of the target network weights operates to stablize learning.
         """
-        self.network = QNetwork(state_size, action_size, seed, 3916, 2896, 1233, 1876).to(device)
-        self.target_network = QNetwork(state_size, action_size, seed, 3916, 2896, 1233, 1876).to(
-            device
-        )
+        self.network = QNetwork(
+            state_size, action_size, seed, 1868, 1615, 1362, 1109
+        ).to(device)
+        self.target_network = QNetwork(
+            state_size, action_size, seed, 1868, 1615, 1362, 1109
+        ).to(device)
         self.optimizer = optim.Adam(self.network.parameters(), lr=self.learn_rate)
 
         # Replay memory
@@ -113,7 +115,7 @@ class Agent:
     ########################################################
     # ACT() method
     #
-    def act(self, state, eps=0., legal_checker=None):
+    def act(self, state, eps=0.0, legal_checker=None):
         """Returns actions for given state as per current policy.
 
         Params

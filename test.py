@@ -1,4 +1,4 @@
-mo#!/usr/bin/env python3
+#!/usr/bin/env python3
 
 """
 Test DQN Model for Unity ML-Agents Environments using PyTorch
@@ -85,7 +85,7 @@ STEP 4: Determine the size of the Action and State Spaces
 action_size = 856
 
 # Set the size of state observations or state size
-state_size = 4936
+state_size = 4080
 
 
 """
@@ -156,7 +156,7 @@ for i_episode in range(1, num_episodes + 1):
         # send the action to the environment and receive resultant environment information
         # env_info = env.step(action)[brain_name]
 
-        (reward, illegal) = env.play_move_reward(legal_checker.decode_move(action))
+        reward = env.play_move_reward(legal_checker.decode_move(action))
 
         print("Reward: ", reward)
 

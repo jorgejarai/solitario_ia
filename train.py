@@ -103,7 +103,7 @@ action_size = 856
 
 # Set the size of state observations or state size
 # state_size = brain.vector_observation_space_size
-state_size = 4936
+state_size = 4080
 
 
 """
@@ -129,7 +129,14 @@ with 2 x 128 node hidden layers. The network can be modified by changing model.p
 Here we initialize an agent using the Unity environments state and action size determined above 
 and the default DQN hyperparameter settings.
 """
-agent = Agent(state_size=state_size, action_size=action_size, dqn_type="DQN")
+seed = random.randint(1, 2**31 - 1)
+agent = Agent(state_size=state_size, action_size=action_size, dqn_type="DQN", seed=seed)
+
+# Save seed for reproducibility
+timestr = time.strftime("%Y%m%d-%H%M%S")
+seed_file = open(f"seed-{timestr}.txt", "w")
+seed_file.write(str(seed))
+seed_file.close()
 
 
 """
@@ -159,6 +166,10 @@ That is, if the average score for the previous 100 episodes is greater than solv
 won_games = 0
 
 try:
+    # create log file
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    log_file = open(f"score-{timestr}.csv", "w")
+
     # loop from num_episodes
     for i_episode in range(1, num_episodes + 1):
         # reset the unity environment at the beginning of each episode
@@ -168,7 +179,7 @@ try:
 
         # get initial state of the unity environment
         # state = env_info.vector_observations[0]
-        state = np.hstack((env.encode_board(), legal_checker.encode_legal_moves()))
+        state = env.encode_board()
 
         # set the initial episode score to zero.
         score = 0
@@ -180,8 +191,10 @@ try:
         # Otherwise repeat until done == true
         i = 0
         while True:
-            # print((i, score, legal_checker.get_legal_moves()))
-            # env.print_game()
+            # Clear screen (ANSI escape code)
+            print("\033[2J\033[H", end="")
+            print((i, score, legal_checker.get_legal_moves()))
+            env.print_game()
 
             # determine epsilon-greedy action from current state
             try:
@@ -196,13 +209,9 @@ try:
 
             # send the action to the environment and receive resultant environment information
             # env_info = env.step(action)
-            (reward, illegal_move) = env.play_move_reward(
-                legal_checker.decode_move(action)
-            )
+            reward = env.play_move_reward(legal_checker.decode_move(action))
 
-            next_state = np.hstack(
-                (env.encode_board(), legal_checker.encode_legal_moves())
-            )  # get the next state
+            next_state = env.encode_board()  # get the next state
             # reward = env_info.rewards[0]  # get the reward
             done = env.check_if_won()  # see if episode has finished
 
@@ -241,7 +250,17 @@ try:
         epsilon = max(epsilon_min, epsilon_decay * epsilon)
 
         # (Over-) Print current average score
-        print("{},{:.2f},{:.2f}".format(i_episode, average_score, won_games / i_episode))
+        print(
+            "{},{:.2f},{:.2f}".format(i_episode, average_score, won_games / i_episode)
+        )
+
+        # Write to log file
+        log_file.write(
+            "{},{:.2f},{:.2f}\n".format(i_episode, average_score, won_games / i_episode)
+        )
+
+        # Flush log file
+        log_file.flush()
 
         # Check to see if the task is solved (i.e,. avearge_score > solved_score).
         # If yes, save the network weights and scores and end training.

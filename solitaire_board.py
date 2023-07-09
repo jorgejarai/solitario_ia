@@ -67,6 +67,8 @@ class SolitaireBoard:
         self.foundations = foundations
         self.stock = stock
         self.waste = waste
+        self.consecutive_d_count = 0
+        self.last_m_moves = []
 
     def print_game(self):
         """Prints the current state of the game."""
@@ -171,8 +173,12 @@ class SolitaireBoard:
 
     def __show_last_card(self, col):
         """Shows the last card in the given column, if it is hidden."""
+        done = False
         if len(self.tableau[col]) > 0:
             self.tableau[col][-1].hidden = False
+            done = True
+
+        return done
 
     def __check_card_to_foundation(self, card):
         """Checks if the given card can be added to the foundation."""
@@ -202,7 +208,7 @@ class SolitaireBoard:
         self.tableau[to_col] += cards
 
         # Show last card in the origin column
-        self.__show_last_card(from_col)
+        return self.__show_last_card(from_col)
 
     def draw_from_stock(self):
         """Draws a card from the stock."""
@@ -359,43 +365,62 @@ class SolitaireBoard:
 
         empty_columns_before = self.get_empty_columns()
 
-        illegal_move = False
-
         command = move[0]
-        try:
-            if command == "m":
-                from_pile = int(move[1])
-                to_pile = int(move[2])
-                slice_length = int(move[3]) if len(move) > 3 else 1
+        if command == "m":
+            self.consecutive_d_count = 0
+            from_pile = int(move[1])
+            to_pile = int(move[2])
+            slice_length = int(move[3]) if len(move) > 3 else 1
 
-                self.move_within_tableau(from_pile, to_pile, slice_length)
+            did_reveal_cards = self.move_within_tableau(
+                from_pile, to_pile, slice_length
+            )
 
-                ret = -5
-            elif command == "d":
-                self.draw_from_stock()
-                ret = -40
-            elif command == "f":
-                pile = int(move[1])
-                suit = self.tableau[pile][-1].suit
-                self.move_to_foundation(pile)
-                ret = 10 * 2 ** len(self.foundations[suit])
-            elif command == "w":
-                pile = int(move[1])
-                self.move_from_waste(pile)
-                ret = -5
-            elif command == "s":
-                suit = self.waste[-1].suit
-                self.move_from_waste_to_foundation()
-                ret = 10 * 2 ** len(self.foundations[suit])
-            elif command == "b":
-                suit = move[1]
-                col = int(move[2])
-                self.move_from_foundation_to_tableau(suit, col)
-                ret = -10 * 4 ** len(self.foundations[suit])
-        except ValueError:
-            assert 1 != 2
-            ret = -1000  # -100 | 20
-            illegal_move = True
+            self.last_m_moves.append(
+                (from_pile, to_pile, slice_length, did_reveal_cards)
+            )
+
+            # If the move revealed cards, the reward is 5
+            # if did_reveal_cards:
+            #     ret += 5
+
+            # If the last_m_moves list has more than 5 elements, remove the first elements
+            # until it has 5 elements
+            while len(self.last_m_moves) > 5:
+                self.last_m_moves.pop(0)
+
+            ret = -5
+        elif command == "d":
+            if len(self.waste) == 0:
+                # Increment counter for consecutive 'd' actions without any movement from the waste pile
+                self.consecutive_d_count += 1
+            else:
+                # Reset the counter if the waste pile is not empty
+                self.consecutive_d_count = 0
+            self.draw_from_stock()
+            ret = -40
+        elif command == "f":
+            self.consecutive_d_count = 0
+            pile = int(move[1])
+            suit = self.tableau[pile][-1].suit
+            self.move_to_foundation(pile)
+            ret = 10 * 2 ** len(self.foundations[suit])
+        elif command == "w":
+            self.consecutive_d_count = 0
+            pile = int(move[1])
+            self.move_from_waste(pile)
+            ret = -5
+        elif command == "s":
+            self.consecutive_d_count = 0
+            suit = self.waste[-1].suit
+            self.move_from_waste_to_foundation()
+            ret = 10 * 2 ** len(self.foundations[suit])
+        elif command == "b":
+            self.consecutive_d_count = 0
+            suit = move[1]
+            col = int(move[2])
+            self.move_from_foundation_to_tableau(suit, col)
+            ret = -10 * 4 ** len(self.foundations[suit])
 
         empty_columns_after = self.get_empty_columns()
 
@@ -404,14 +429,26 @@ class SolitaireBoard:
         if len(empty_columns_after) > len(empty_columns_before):
             ret += 10 * (len(empty_columns_after) - len(empty_columns_before))
 
-        # Si se ha vaciado el mazo, se castiga con -20
-        if command == "d" and len(self.stock) == 0:
-            ret -= 20
+        # Penalize for consecutive 'd' actions without any movement from the waste pile
+        penalty_factor = 5  # Adjust the penalty factor as needed
+        ret -= self.consecutive_d_count * penalty_factor
+
+        # Penalize if an 'm' move is made that is the opposite of the previous 'm' moves
+        # only if the previous 'm' moves were not made to reveal cards
+        if len(self.last_m_moves) > 0:
+            for m_move in self.last_m_moves[:-1]:
+                if (
+                    m_move[0] == self.last_m_moves[-1][1]
+                    and m_move[1] == self.last_m_moves[-1][0]
+                    and m_move[2] == self.last_m_moves[-1][2]
+                    and not m_move[3]
+                ):
+                    ret -= 10
 
         if self.check_if_won():
             ret = 100000
 
-        return (ret, illegal_move)
+        return ret
 
     def export(self):
         """Exports the state of the game to a dictionary."""
