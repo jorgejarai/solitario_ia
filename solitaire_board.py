@@ -404,7 +404,7 @@ class SolitaireBoard:
             pile = int(move[1])
             suit = self.tableau[pile][-1].suit
             self.move_to_foundation(pile)
-            ret = 10 * 2 ** len(self.foundations[suit])
+            ret = 100
         elif command == "w":
             self.consecutive_d_count = 0
             pile = int(move[1])
@@ -414,13 +414,13 @@ class SolitaireBoard:
             self.consecutive_d_count = 0
             suit = self.waste[-1].suit
             self.move_from_waste_to_foundation()
-            ret = 10 * 2 ** len(self.foundations[suit])
+            ret = 110
         elif command == "b":
             self.consecutive_d_count = 0
             suit = move[1]
             col = int(move[2])
             self.move_from_foundation_to_tableau(suit, col)
-            ret = -10 * 4 ** len(self.foundations[suit])
+            ret = -1000
 
         empty_columns_after = self.get_empty_columns()
 
