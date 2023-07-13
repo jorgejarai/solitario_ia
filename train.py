@@ -20,6 +20,8 @@ Code Expanded and Adapted from Code provided by Udacity DRL Team, 2018.
 
 ###################################
 # Import Required Packages
+import json
+import sys
 import torch
 import time
 import random
@@ -164,6 +166,20 @@ That is, if the average score for the previous 100 episodes is greater than solv
 """
 
 won_games = 0
+boards = []
+
+if len(sys.argv) > 1:
+    json_files = sys.argv[1:]
+    boards = []
+
+    for json_file in json_files:
+        with open(json_file, "r") as f:
+            board_json = f.read()
+            board_json = json.loads(board_json)
+
+        boards.append(SolitaireBoard.generate_from_json(board_json))
+
+    num_episodes = len(boards)
 
 try:
     # create log file
@@ -174,7 +190,11 @@ try:
     for i_episode in range(1, num_episodes + 1):
         # reset the unity environment at the beginning of each episode
         # env_info = env.reset(train_mode=True)[brain_name]
-        env = SolitaireBoard.generate_random()
+        env = (
+            boards[i_episode - 1]
+            if len(sys.argv) > 1
+            else SolitaireBoard.generate_random()
+        )
         legal_checker = LegalMoveChecker(env)
 
         # get initial state of the unity environment
