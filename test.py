@@ -105,15 +105,17 @@ with 2 x 128 node hidden layers. The network can be modified by changing model.p
 Here we initialize an agent using the Unity environments state and action size determined above 
 We also load the model parameters from training
 """
-# Initialize Agent
-agent = Agent(state_size=state_size, action_size=action_size, seed=0)
 
-if len(sys.argv) != 2:
-    print("Usage: ./test.py <agent_path>")
+if len(sys.argv) != 3:
+    print("Usage: ./test.py <agent_path> <seed>")
     exit(1)
 
-
 weights_path = sys.argv[1]
+seed = random.randint(1, 2**31 - 1)
+
+# Initialize Agent
+agent = Agent(state_size=state_size, action_size=action_size, seed=seed)
+
 
 # Load trained model weights
 agent.network.load_state_dict(torch.load(weights_path))
@@ -131,7 +133,7 @@ for i_episode in range(1, num_episodes + 1):
     legal_checker = LegalMoveChecker(env)
 
     # get initial state of the unity environment
-    state = np.hstack((env.encode_board(), legal_checker.encode_legal_moves()))
+    state = env.encode_board()
 
     # set the initial episode score to zero.
     score = 0
