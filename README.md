@@ -2,9 +2,26 @@
 
 ## Cómo ejecutar
 
+Para ejecutar el juego, es necesario tener instalado Python 3.7 o superior. Con Python instalado, basta con ejecutar el siguiente comando:
+
 ```console
 $ ./main.py
 ```
+
+Los siguientes son algunos ejecutables asociados a los *solvers* implementados:
+
+- `./viewer.py <tablero>`: muestra el tablero especificado (en formato JSON) en una ventana gráfica, pudiendo reproducir las jugadas realizadas por el *solver* DFS
+- `./dfs_solver.py`: resuelve el juego con el algoritmo de búsqueda en profundidad con un tablero inicial aleatorio
+    - `./dfs_solver.py <tablero>`: resuelve el juego con el algoritmo de búsqueda en profundidad con el tablero especificado (en formato JSON)
+    - `./dfs_solver.py --bench`: resuelve el juego con el algoritmo de búsqueda en profundidad con 1000 tableros iniciales aleatorios, generando estadísticas
+    - `./dfs_solver.py --bench <tablero1> <tablero2> ...`: resuelve el juego con el algoritmo de búsqueda en profundidad iterativamente con los tableros especificados (en formato JSON), generando estadísticas
+    - Cada vez que el algoritmo encuentra una solución, guarda en la carpeta `boards/` un archivo JSON con el tablero inicial y la secuencia de jugadas que lleva a la solución.
+- `./rl_train.py`: entrena un agente de refuerzo usando *deep Q-learning*, generando un modelo PyTorch y estadísticas
+    - `./rl_train.py <tablero1> <tablero2> ...`: entrena un agente de refuerzo usando *deep Q-learning* con los tableros especificados (en formato JSON)
+    - El entrenamiento se ejecutará hasta alcanzar una tasa de 75% de victorias. En cualquier momento, se puede detener el entrenamiento con `Ctrl+C`, y se guardará el modelo y las estadísticas hasta ese momento. También se genera un archivo que contiene la semilla del generador de números aleatorios, para poder reproducir el entrenamiento.
+- `./rl_test.py <modelo> <semilla>`: resuelve el juego con un agente de refuerzo entrenado, generando estadísticas.
+    - El modelo corresponde al archivo PTH generado por el entrenamiento. La semilla corresponde al valor contenido el archivo de semilla generado por el entrenamiento.
+- `./generate_boards.py <n>`: genera `n` tableros iniciales aleatorios, guardándolos en la carpeta `boards/random/` en formato JSON
 
 ## Cómo jugar
 
