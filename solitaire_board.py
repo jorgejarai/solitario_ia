@@ -1,3 +1,22 @@
+"""
+solitario_ia
+Copyright (C) 2023 Aníbal Ibaceta, Sebastián Hevia & Jorge Jara
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+
 from copy import deepcopy
 from random import shuffle
 from card import Card
@@ -5,7 +24,6 @@ import numpy as np
 
 # TODO: Make class immutable (create a new instance every time a move is made)
 # TODO: Check if there are no more moves available
-# TODO: Hints
 
 
 class SolitaireBoard:

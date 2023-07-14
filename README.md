@@ -1,5 +1,9 @@
 # Solitario Klondike
 
+Esta es una implementación del juego de cartas Solitario Klondike, también conocido como *Solitaire* o *Patience*. El juego se ejecuta en la terminal, y se puede jugar con el teclado. Incluye también un par *solvers* que resuelven el juego automáticamente utilizando DFS y *deep Q-learning*.
+
+La implementación del modelo DQN fue desarrollada originalmente por Michael Richardson, licenciada bajo la versión 3 de la GPL y que se puede encontrar en [este repositorio](https://github.com/xkiwilabs/DQN-using-PyTorch-and-ML-Agents).
+
 ## Cómo ejecutar
 
 Para ejecutar el juego, es necesario tener instalado Python 3.7 o superior. Con Python instalado, basta con ejecutar el siguiente comando:
@@ -37,3 +41,9 @@ En cada jugada, se imprime por pantalla el estado actual del tablero, y se pide 
 - `q`: sale del juego
 
 Si alguno de los comandos o las jugadas que generan no son válidas, se imprime un mensaje de error y se vuelve a pedir una jugada.
+
+## Integrantes
+
+- Aníbal Ibaceta
+- Sebastián Hevia
+- Jorge Jara
